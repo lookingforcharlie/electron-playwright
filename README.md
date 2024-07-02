@@ -1,4 +1,8 @@
-# React + TypeScript + Vite
+# Electron + React + TypeScript + Vite
+
+- Testing and prototyping functions and libraries
+
+## Stack
 
 ## PlayWright
 
