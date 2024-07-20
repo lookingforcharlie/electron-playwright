@@ -1,4 +1,15 @@
-import { ipcRenderer, contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
+import { generateHashedPassword } from './NodeFunctions'
+
+console.log('Preload script is running')
+
+contextBridge.exposeInMainWorld('myAPI', {
+  desktop: true,
+})
+
+contextBridge.exposeInMainWorld('getPass', {
+  getHashedPass: (pass: string) => generateHashedPassword(pass),
+})
 
 // --------- Expose some API to the Renderer process ---------
 contextBridge.exposeInMainWorld('ipcRenderer', {

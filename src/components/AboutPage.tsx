@@ -1,3 +1,10 @@
+import TestComponentIPCMain from './TestComponentIPCMain'
+
 export default function AboutPage() {
-  return <div>AboutPage</div>
+  return (
+    <>
+      <div>About Page</div>
+      <TestComponentIPCMain />
+    </>
+  )
 }
