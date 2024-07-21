@@ -1,7 +1,10 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain, IpcMainEvent } from 'electron'
 // import { createRequire } from 'node:module'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { generateHashedPassword } from './NodeFunctions'
+
+app.disableHardwareAcceleration()
 
 // const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -28,6 +31,7 @@ process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL
 
 let win: BrowserWindow | null
 
+console.log('Main process is running')
 function createWindow() {
   win = new BrowserWindow({
     width: 1200,
@@ -36,9 +40,12 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
       sandbox: false,
+      nodeIntegration: true,
+      contextIsolation: false,
     },
   })
 
+  console.log(path.join(__dirname, 'preload.mjs'))
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', new Date().toLocaleString())
@@ -70,6 +77,7 @@ console.log('Received command line arguments:', args)
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
+// helho
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
@@ -85,4 +93,22 @@ app.on('activate', () => {
   }
 })
 
-app.whenReady().then(createWindow)
+// app.whenReady().then(createWindow)
+app.on('ready', () => {
+  console.log('Electron app is ready, creating window...')
+  createWindow()
+})
+
+ipcMain.on('execute-function', (event: IpcMainEvent, functionName: string) => {
+  if (functionName === 'myFunction') {
+    event.reply('function-executed', myFunction())
+  }
+})
+
+function myFunction(): string {
+  return 'Function executed successfully!'
+}
+
+ipcMain.handle('hash-password', async (_event, password: string) => {
+  return generateHashedPassword(password)
+})
